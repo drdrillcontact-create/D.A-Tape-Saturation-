@@ -1,0 +1,89 @@
+name: Build Tape Saturation
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ 'v*' ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  # ---------------------------------------------------------------- Windows VST3 (x64)
+  windows:
+    name: Windows VST3 (x64)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -B build -G "Visual Studio 17 2022" -A x64
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Stage artefacts
+        shell: bash
+        run: |
+          mkdir -p dist
+          find build -maxdepth 4 -name "*.vst3" -prune -exec cp -R {} dist/ \;
+          ls -la dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TapeSaturation-Windows-VST3-x64
+          path: dist/
+          if-no-files-found: error
+
+  # ---------------------------------------------------------------- macOS AU + VST3 (universal)
+  macos:
+    name: macOS AU + VST3 (universal)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -B build -G Xcode
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Stage artefacts
+        run: |
+          mkdir -p dist
+          find build -maxdepth 4 -name "*.component" -prune -exec cp -R {} dist/ \;
+          find build -maxdepth 4 -name "*.vst3"      -prune -exec cp -R {} dist/ \;
+          # ad-hoc signature so Apple Silicon Macs will load the plugin
+          for p in dist/*; do codesign --force --deep -s - "$p"; done
+          ls -la dist
+          lipo -archs "dist/Tape Saturation.component/Contents/MacOS/Tape Saturation" || true
+          (cd dist && zip -r -y ../TapeSaturation-macOS.zip .)
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TapeSaturation-macOS-AU-VST3
+          path: TapeSaturation-macOS.zip
+          if-no-files-found: error
+
+  # ---------------------------------------------------------------- GitHub release on tag
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [ windows, macos ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artefacts
+
+      - name: Zip Windows build
+        run: |
+          cd artefacts/TapeSaturation-Windows-VST3-x64
+          zip -r ../../TapeSaturation-Windows-VST3.zip .
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            TapeSaturation-Windows-VST3.zip
+            artefacts/TapeSaturation-macOS-AU-VST3/TapeSaturation-macOS.zip
