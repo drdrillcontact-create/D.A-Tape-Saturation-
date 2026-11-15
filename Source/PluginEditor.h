@@ -16,8 +16,6 @@ public:
     void drawLinearSlider (juce::Graphics&, int x, int y, int width, int height,
                            float sliderPos, float minSliderPos, float maxSliderPos,
                            juce::Slider::SliderStyle, juce::Slider&) override;
-
-    void drawLabel (juce::Graphics&, juce::Label&) override;
 };
 
 //==============================================================================
@@ -37,23 +35,22 @@ private:
 
     enum ControlId
     {
-        kDrive = 0,
-        kInput,
+        kInput = 0,
+        kDrive,
         kOutput,
-        kMix,
+        kDryWet,
         kFlutter,
         kWow,
-        kHiss,
+        kNoise,
         kBias,
-        kTone,
         kBump,
+        kTone,
         kNumControls
     };
 
     struct ControlWidget
     {
         juce::Slider slider;
-        juce::Label  label;
         std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attachment;
     };
 
@@ -64,9 +61,9 @@ private:
     juce::Image backgroundImage;
     juce::Image hubImage;
 
-    float reelAngle = 0.0f;
-    float meterL = 0.0f;
-    float meterR = 0.0f;
+    double reelAngle = 0.0;
+    float meterL = 0.65f;
+    float meterR = 0.60f;
     int counterSecs = 83; // 01:23
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TapeSaturationAudioProcessorEditor)
