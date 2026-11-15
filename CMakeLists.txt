@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.22)
 
 # Statically link the MSVC runtime so users don't need the VC++ redistributable
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+if(MSVC)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
 
 # macOS: universal binary (Apple Silicon + Intel)
 if(APPLE)

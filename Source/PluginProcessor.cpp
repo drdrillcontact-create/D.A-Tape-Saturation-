@@ -166,12 +166,12 @@ void TapeSaturationAudioProcessor::prepareToPlay (double sampleRate, int samples
     compBuf.assign  ((size_t) (maxBlockSize * osFactor), 1.0f);
 
     // --- smoothing
-    driveSmooth.reset  (osRate, 0.05);
-    biasSmooth.reset   (osRate, 0.05);
-    wowSmooth.reset    (sampleRate, 0.1);
-    flutterSmooth.reset(sampleRate, 0.1);
-    outputSmooth.reset (sampleRate, 0.05);
-    mixSmooth.reset    (sampleRate, 0.05);
+    driveSmooth.reset   ((double) osRate, 0.05);
+    biasSmooth.reset    ((double) osRate, 0.05);
+    wowSmooth.reset     (sampleRate, 0.1);
+    flutterSmooth.reset (sampleRate, 0.1);
+    outputSmooth.reset  (sampleRate, 0.05);
+    mixSmooth.reset     (sampleRate, 0.05);
 
     driveSmooth.setCurrentAndTargetValue   (juce::Decibels::decibelsToGain (driveParam->load()));
     biasSmooth.setCurrentAndTargetValue    (biasParam->load() * 0.01f * 0.6f);
@@ -278,9 +278,17 @@ void TapeSaturationAudioProcessor::processChunk (juce::dsp::AudioBlock<float> bl
         const float wowMod = std::sin (wowPhase);
         const float fltMod = 0.7f * std::sin (flutterPhase) + 0.3f * std::sin (flutter2Phase);
 
-        wowPhase      += wowInc; if (wowPhase      > twoPi) wowPhase      -= twoPi;
-        flutterPhase  += fl1Inc; if (flutterPhase  > twoPi) flutterPhase  -= twoPi;
-        flutter2Phase += fl2Inc; if (flutter2Phase > twoPi) flutter2Phase -= twoPi;
+        wowPhase      += wowInc;
+        while (wowPhase >= twoPi) wowPhase -= twoPi;
+        while (wowPhase < 0.0f)   wowPhase += twoPi;
+
+        flutterPhase  += fl1Inc;
+        while (flutterPhase >= twoPi) flutterPhase -= twoPi;
+        while (flutterPhase < 0.0f)   flutterPhase += twoPi;
+
+        flutter2Phase += fl2Inc;
+        while (flutter2Phase >= twoPi) flutter2Phase -= twoPi;
+        while (flutter2Phase < 0.0f)   flutter2Phase += twoPi;
 
         // up to ~1.2 ms of wow and ~0.25 ms of flutter (centre delay is 3 ms)
         modBuf[(size_t) i] = (float) centreDelay
