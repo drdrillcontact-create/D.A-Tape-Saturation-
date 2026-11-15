@@ -4,14 +4,16 @@
 #include <array>
 
 //==============================================================================
-class TapeLookAndFeel : public juce::LookAndFeel_V4
+class CassetteLookAndFeel : public juce::LookAndFeel_V4
 {
 public:
-    TapeLookAndFeel();
+    CassetteLookAndFeel();
 
     void drawRotarySlider (juce::Graphics&, int x, int y, int width, int height,
                            float sliderPosProportional, float rotaryStartAngle,
                            float rotaryEndAngle, juce::Slider&) override;
+
+    void drawLabel (juce::Graphics&, juce::Label&) override;
 };
 
 //==============================================================================
@@ -27,7 +29,9 @@ public:
 
 private:
     void timerCallback() override;
-    void drawReel (juce::Graphics&, juce::Point<float> centre, float radius, float angle);
+    void drawCassette (juce::Graphics&, juce::Rectangle<float> bounds);
+    void drawCassetteSpool (juce::Graphics&, juce::Point<float> centre, float radius, float angle, float tapeThickness);
+    void drawVUMeters (juce::Graphics&, juce::Rectangle<float> bounds);
 
     static constexpr int numKnobs = 9;
 
@@ -39,10 +43,11 @@ private:
     };
 
     TapeSaturationAudioProcessor& audioProc;
-    TapeLookAndFeel lookAndFeel;
+    CassetteLookAndFeel lookAndFeel;
     std::array<Knob, numKnobs> knobs;
 
     float reelAngle = 0.0f;
+    int counterDigits = 248;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TapeSaturationAudioProcessorEditor)
 };

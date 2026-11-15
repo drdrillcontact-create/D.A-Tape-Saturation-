@@ -11,7 +11,7 @@ if(APPLE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "Minimum macOS version" FORCE)
 endif()
 
-project(TapeSaturation VERSION 1.0.0 LANGUAGES C CXX)
+project(DATapeSaturation VERSION 1.0.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -32,12 +32,12 @@ else()
     set(TAPE_FORMATS VST3)
 endif()
 
-juce_add_plugin(TapeSaturation
+juce_add_plugin(DATapeSaturation
     COMPANY_NAME                "TapeLab"
     PLUGIN_MANUFACTURER_CODE    Tplb
     PLUGIN_CODE                 Tsat
     FORMATS                     ${TAPE_FORMATS}
-    PRODUCT_NAME                "Tape Saturation"
+    PRODUCT_NAME                "D.A Tape Saturation"
     IS_SYNTH                    FALSE
     NEEDS_MIDI_INPUT            FALSE
     NEEDS_MIDI_OUTPUT           FALSE
@@ -46,17 +46,17 @@ juce_add_plugin(TapeSaturation
     COPY_PLUGIN_AFTER_BUILD     FALSE
     VST3_CATEGORIES             Fx Distortion
     AU_MAIN_TYPE                kAudioUnitType_Effect
-    BUNDLE_ID                   com.tapelab.tapesaturation
+    BUNDLE_ID                   com.tapelab.datape-saturation
 )
 
-target_sources(TapeSaturation PRIVATE
+target_sources(DATapeSaturation PRIVATE
     Source/PluginProcessor.cpp
     Source/PluginProcessor.h
     Source/PluginEditor.cpp
     Source/PluginEditor.h
 )
 
-target_compile_definitions(TapeSaturation PUBLIC
+target_compile_definitions(DATapeSaturation PUBLIC
     JUCE_WEB_BROWSER=0
     JUCE_USE_CURL=0
     JUCE_VST3_CAN_REPLACE_VST2=0
@@ -64,7 +64,7 @@ target_compile_definitions(TapeSaturation PUBLIC
     JUCE_REPORT_APP_USAGE=0
 )
 
-target_link_libraries(TapeSaturation
+target_link_libraries(DATapeSaturation
     PRIVATE
         juce::juce_audio_utils
         juce::juce_dsp

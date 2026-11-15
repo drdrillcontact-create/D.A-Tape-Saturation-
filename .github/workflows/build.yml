@@ -58,7 +58,7 @@ jobs:
           # ad-hoc signature so Apple Silicon Macs will load the plugin
           for p in dist/*; do codesign --force --deep -s - "$p"; done
           ls -la dist
-          lipo -archs "dist/Tape Saturation.component/Contents/MacOS/Tape Saturation" || true
+          find dist -name "*.component" -exec lipo -archs "{}/Contents/MacOS/$(basename "{}" .component)" \; || true
           (cd dist && zip -r -y ../TapeSaturation-macOS.zip .)
 
       - uses: actions/upload-artifact@v4
