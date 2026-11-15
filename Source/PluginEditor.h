@@ -4,14 +4,18 @@
 #include <array>
 
 //==============================================================================
-class CassetteLookAndFeel : public juce::LookAndFeel_V4
+class VintageKazettLookAndFeel : public juce::LookAndFeel_V4
 {
 public:
-    CassetteLookAndFeel();
+    VintageKazettLookAndFeel();
 
     void drawRotarySlider (juce::Graphics&, int x, int y, int width, int height,
                            float sliderPosProportional, float rotaryStartAngle,
                            float rotaryEndAngle, juce::Slider&) override;
+
+    void drawLinearSlider (juce::Graphics&, int x, int y, int width, int height,
+                           float sliderPos, float minSliderPos, float maxSliderPos,
+                           juce::Slider::SliderStyle, juce::Slider&) override;
 
     void drawLabel (juce::Graphics&, juce::Label&) override;
 };
@@ -29,13 +33,24 @@ public:
 
 private:
     void timerCallback() override;
-    void drawCassette (juce::Graphics&, juce::Rectangle<float> bounds);
-    void drawCassetteSpool (juce::Graphics&, juce::Point<float> centre, float radius, float angle, float tapeThickness);
-    void drawVUMeters (juce::Graphics&, juce::Rectangle<float> bounds);
+    void drawLcdScreen (juce::Graphics&, juce::Rectangle<float> bounds);
 
-    static constexpr int numKnobs = 9;
+    enum ControlId
+    {
+        kDrive = 0,
+        kInput,
+        kOutput,
+        kMix,
+        kFlutter,
+        kWow,
+        kHiss,
+        kBias,
+        kTone,
+        kBump,
+        kNumControls
+    };
 
-    struct Knob
+    struct ControlWidget
     {
         juce::Slider slider;
         juce::Label  label;
@@ -43,11 +58,16 @@ private:
     };
 
     TapeSaturationAudioProcessor& audioProc;
-    CassetteLookAndFeel lookAndFeel;
-    std::array<Knob, numKnobs> knobs;
+    VintageKazettLookAndFeel lookAndFeel;
+    std::array<ControlWidget, kNumControls> controls;
+
+    juce::Image backgroundImage;
+    juce::Image hubImage;
 
     float reelAngle = 0.0f;
-    int counterDigits = 248;
+    float meterL = 0.0f;
+    float meterR = 0.0f;
+    int counterSecs = 83; // 01:23
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TapeSaturationAudioProcessorEditor)
 };

@@ -54,6 +54,8 @@ target_sources(DATapeSaturation PRIVATE
     Source/PluginProcessor.h
     Source/PluginEditor.cpp
     Source/PluginEditor.h
+    Source/BinaryData.cpp
+    Source/BinaryData.h
 )
 
 target_compile_definitions(DATapeSaturation PUBLIC
